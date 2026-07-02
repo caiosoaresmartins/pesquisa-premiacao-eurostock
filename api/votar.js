@@ -41,7 +41,7 @@ export default async function handler(req, res) {
         'Squad': {
           rich_text: [{ text: { content: String(squad) } }]
         },
-        'Premio': {
+        'Voto': {
           rich_text: [{ text: { content: String(voto) } }]
         },
         'Data': {
