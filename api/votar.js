@@ -21,17 +21,17 @@ export default async function handler(req, res) {
     await notion.pages.create({
       parent: { database_id: DATABASE_ID },
       properties: {
-        'Código': { title: [{ text: { content: codigo } }] },
-        'Nome':   { rich_text: [{ text: { content: nome } }] },
-        'Squad':  { select: { name: squad } },
-        'Voto':   { select: { name: voto.length > 100 ? voto.substring(0, 100) : voto } },
-        'Data':   { date: { start: new Date().toISOString() } },
+        'C\u00f3digo': { title: [{ text: { content: codigo } }] },
+        'Nome':    { rich_text: [{ text: { content: nome } }] },
+        'Squad':   { rich_text: [{ text: { content: squad } }] },
+        'Voto':    { rich_text: [{ text: { content: voto } }] },
+        'Data':    { date: { start: new Date().toISOString() } },
       },
     });
 
     return res.status(200).json({ success: true, message: 'Voto registrado com sucesso!' });
   } catch (err) {
-    console.error('Erro ao gravar no Notion:', err);
+    console.error('Erro Notion:', err);
     return res.status(500).json({ error: 'Erro ao gravar no Notion', details: err.message });
   }
 }
