@@ -314,7 +314,7 @@
     <div class="card-desc">Digite seu código de assessor para acessar a pesquisa de premiação.</div>
     <div class="form-group">
       <label>Código do Assessor</label>
-      <input type="text" id="input-codigo" placeholder="Ex: AL01" maxlength="8" autocomplete="off" />
+      <input type="text" id="input-codigo" placeholder="Ex: A96379" maxlength="10" autocomplete="off" />
     </div>
     <div class="error-msg" id="login-error"></div>
     <button class="btn" id="btn-login">Entrar</button>
@@ -359,40 +359,47 @@
 
 <script>
   // =========================================
-  // BASE DE ASSESSORES
+  // BASE DE ASSESSORES — DADOS REAIS
   // =========================================
   const assessores = [
-    { codigo: 'AL01', nome: 'Assessor Alavancados 1', squad: 'Alavancados' },
-    { codigo: 'AL02', nome: 'Assessor Alavancados 2', squad: 'Alavancados' },
-    { codigo: 'AL03', nome: 'Assessor Alavancados 3', squad: 'Alavancados' },
-    { codigo: 'AL04', nome: 'Assessor Alavancados 4', squad: 'Alavancados' },
-    { codigo: 'AL05', nome: 'Assessor Alavancados 5', squad: 'Alavancados' },
-    { codigo: 'AL06', nome: 'Assessor Alavancados 6', squad: 'Alavancados' },
-    { codigo: 'LH01', nome: 'Assessor Los Hermanos 1', squad: 'Los Hermanos' },
-    { codigo: 'LH02', nome: 'Assessor Los Hermanos 2', squad: 'Los Hermanos' },
-    { codigo: 'LH03', nome: 'Assessor Los Hermanos 3', squad: 'Los Hermanos' },
-    { codigo: 'LH04', nome: 'Assessor Los Hermanos 4', squad: 'Los Hermanos' },
-    { codigo: 'LH05', nome: 'Assessor Los Hermanos 5', squad: 'Los Hermanos' },
-    { codigo: 'LH06', nome: 'Assessor Los Hermanos 6', squad: 'Los Hermanos' },
-    { codigo: 'LH07', nome: 'Assessor Los Hermanos 7', squad: 'Los Hermanos' },
-    { codigo: 'AD01', nome: 'Assessor Advisors 1', squad: 'Advisors' },
-    { codigo: 'AD02', nome: 'Assessor Advisors 2', squad: 'Advisors' },
-    { codigo: 'AD03', nome: 'Assessor Advisors 3', squad: 'Advisors' },
-    { codigo: 'AD04', nome: 'Assessor Advisors 4', squad: 'Advisors' },
-    { codigo: 'AD05', nome: 'Assessor Advisors 5', squad: 'Advisors' },
-    { codigo: 'AD06', nome: 'Assessor Advisors 6', squad: 'Advisors' },
-    { codigo: 'OL01', nome: 'Assessor Outliers 1', squad: 'Outliers' },
-    { codigo: 'OL02', nome: 'Assessor Outliers 2', squad: 'Outliers' },
-    { codigo: 'OL03', nome: 'Assessor Outliers 3', squad: 'Outliers' },
-    { codigo: 'OL04', nome: 'Assessor Outliers 4', squad: 'Outliers' },
-    { codigo: 'OL05', nome: 'Assessor Outliers 5', squad: 'Outliers' },
-    { codigo: 'AW01', nome: 'Assessor Anywhere 1', squad: 'Anywhere' },
-    { codigo: 'AW02', nome: 'Assessor Anywhere 2', squad: 'Anywhere' },
-    { codigo: 'AW03', nome: 'Assessor Anywhere 3', squad: 'Anywhere' },
-    { codigo: 'AW04', nome: 'Assessor Anywhere 4', squad: 'Anywhere' },
-    { codigo: 'OP01', nome: 'Área Operacional 1', squad: 'Áreas Operacionais' },
-    { codigo: 'OP02', nome: 'Área Operacional 2', squad: 'Áreas Operacionais' },
-    { codigo: 'OP03', nome: 'Área Operacional 3', squad: 'Áreas Operacionais' },
+    // 🟡 Alavancados
+    { codigo: 'A73614', nome: 'Bruno Bruel',           squad: 'Alavancados' },
+    { codigo: 'A26347', nome: 'Guilherme Monticelli',  squad: 'Alavancados' },
+    { codigo: 'A38636', nome: 'Hellen Carvalho',       squad: 'Alavancados' },
+    { codigo: 'A38548', nome: 'Igor Bairros',          squad: 'Alavancados' },
+    { codigo: 'A96379', nome: 'Leonardo Vacca',        squad: 'Alavancados' },
+    { codigo: 'A51532', nome: 'Nicolas Mallmann',      squad: 'Alavancados' },
+    { codigo: 'A26305', nome: 'Pedro Couto',           squad: 'Alavancados' },
+    { codigo: 'A27267', nome: 'Rodrigo Lisboa',        squad: 'Alavancados' },
+    { codigo: 'A27321', nome: 'Vitória Vidor',         squad: 'Alavancados' },
+    { codigo: 'A42881', nome: 'Ygor Walter',           squad: 'Alavancados' },
+    // 🟤 Los Hermanos
+    { codigo: 'A1607',  nome: 'Assessoria Eurostock',  squad: 'Los Hermanos' },
+    { codigo: 'A98897', nome: 'Daniel Mendonça',       squad: 'Los Hermanos' },
+    { codigo: 'A73851', nome: 'Eduardo Freitas',       squad: 'Los Hermanos' },
+    { codigo: 'A26969', nome: 'Eurostock Digital',     squad: 'Los Hermanos' },
+    { codigo: 'A98943', nome: 'Israel Gusso',          squad: 'Los Hermanos' },
+    { codigo: 'A97096', nome: 'Júlia Mendonça',        squad: 'Los Hermanos' },
+    { codigo: 'A3744',  nome: 'Guilherme Vitt',        squad: 'Los Hermanos' },
+    // 🟠 Outliers
+    { codigo: 'A1998',  nome: 'Icaro Piacini',         squad: 'Outliers' },
+    { codigo: 'A42105', nome: 'Joceane Lenhart',       squad: 'Outliers' },
+    { codigo: 'A59147', nome: 'Lucas Bach',            squad: 'Outliers' },
+    { codigo: 'A47707', nome: 'Mateus Brandão',        squad: 'Outliers' },
+    // 🟣 Advisors
+    { codigo: 'A39869', nome: 'Fernando Parisotto',    squad: 'Advisors' },
+    { codigo: 'A20680', nome: 'Francisco Dall Agnol',  squad: 'Advisors' },
+    { codigo: 'A50655', nome: 'Paulo Bortolini',       squad: 'Advisors' },
+    // 🟢 Anywhere
+    { codigo: 'A56902', nome: 'Daniel Mastalir',       squad: 'Anywhere' },
+    { codigo: 'A56903', nome: 'Leonardo Dutra',        squad: 'Anywhere' },
+    // ⚙️ Áreas Operacionais
+    { codigo: 'A54287', nome: 'Bruno Giacomuzzi',      squad: 'Áreas Operacionais' },
+    { codigo: 'A22616', nome: 'Enzo Hejazi',           squad: 'Áreas Operacionais' },
+    { codigo: 'A61852', nome: 'Gabriel Berté',         squad: 'Áreas Operacionais' },
+    { codigo: 'A22038', nome: 'José Colling',          squad: 'Áreas Operacionais' },
+    { codigo: 'A20557', nome: 'Milena Portela',        squad: 'Áreas Operacionais' },
+    { codigo: 'A33788', nome: 'Nicolas Got',           squad: 'Áreas Operacionais' },
   ];
 
   // Opções de voto (5 fixas + Outros)
@@ -463,7 +470,7 @@
     }
     assessorLogado = assessor;
     $('login-error').textContent = '';
-    $('badge-nome').textContent = assessor.nome;
+    $('badge-nome').textContent = 'Bem-vindo, ' + assessor.nome;
     $('badge-squad').textContent = assessor.squad;
     renderOpcoes();
     showScreen('screen-vote');
