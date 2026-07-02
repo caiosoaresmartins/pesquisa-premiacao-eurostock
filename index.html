@@ -1,1 +1,529 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pesquisa de Premiação — Eurostock</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0f;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 20%, rgba(212,175,55,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(212,175,55,0.05) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .logo-area {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo-area .brand {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: #d4af37;
+      text-transform: uppercase;
+    }
+
+    .logo-area .sub {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 20px;
+      padding: 40px 36px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: rgba(212,175,55,0.8);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+      transition: border-color .2s, box-shadow .2s;
+      letter-spacing: 2px;
+      text-align: center;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: rgba(212,175,55,0.6);
+      box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
+    }
+
+    input[type="text"]::placeholder {
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 1px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #d4af37, #f0cc5a, #b8972e);
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      color: #0a0a0f;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+      margin-top: 8px;
+    }
+
+    .btn:hover { opacity: .9; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    .error-msg {
+      color: #ff6b6b;
+      font-size: 12px;
+      margin-top: 8px;
+      text-align: center;
+      min-height: 16px;
+    }
+
+    /* TELA DE VOTAÇÃO */
+    .vote-screen { display: none; }
+
+    .assessor-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(212,175,55,0.08);
+      border: 1px solid rgba(212,175,55,0.25);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+    }
+
+    .assessor-badge .icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #d4af37, #f0cc5a);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+
+    .assessor-badge .info .name {
+      font-size: 14px; font-weight: 600; color: #fff;
+    }
+
+    .assessor-badge .info .squad {
+      font-size: 11px; color: rgba(212,175,55,0.7);
+      letter-spacing: 1px; text-transform: uppercase;
+    }
+
+    .vote-question {
+      font-size: 14px;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .vote-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+
+    .vote-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all .2s;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .vote-option:hover {
+      border-color: rgba(212,175,55,0.4);
+      background: rgba(212,175,55,0.06);
+    }
+
+    .vote-option.selected {
+      border-color: #d4af37;
+      background: rgba(212,175,55,0.12);
+    }
+
+    .vote-option .radio {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.25);
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .2s;
+    }
+
+    .vote-option.selected .radio {
+      border-color: #d4af37;
+      background: #d4af37;
+    }
+
+    .vote-option.selected .radio::after {
+      content: '';
+      width: 7px; height: 7px;
+      background: #0a0a0f;
+      border-radius: 50%;
+    }
+
+    .vote-option .option-text {
+      font-size: 14px; color: rgba(255,255,255,0.85);
+    }
+
+    .vote-option.selected .option-text { color: #fff; font-weight: 500; }
+
+    .outros-input {
+      display: none;
+      margin-bottom: 16px;
+    }
+
+    /* MODAL DE SUCESSO */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.show { display: flex; animation: fadeIn .3s ease; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-box {
+      background: #111118;
+      border: 1px solid rgba(212,175,55,0.35);
+      border-radius: 20px;
+      padding: 40px 32px;
+      text-align: center;
+      max-width: 380px;
+      width: 100%;
+      animation: slideUp .35s ease;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    }
+
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    .modal-icon {
+      font-size: 52px;
+      margin-bottom: 16px;
+      animation: pulse 1.5s ease infinite;
+    }
+
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+    .modal-title {
+      font-size: 20px; font-weight: 700; color: #d4af37; margin-bottom: 8px;
+    }
+
+    .modal-text {
+      font-size: 13px; color: rgba(255,255,255,0.55); line-height: 1.6;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(212,175,55,0.3), transparent);
+      margin: 20px 0;
+    }
+
+    .screen { transition: opacity .3s; }
+    .screen.hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="logo-area">
+    <div class="brand">Eurostock</div>
+    <div class="sub">Pesquisa de Premiação</div>
+  </div>
+
+  <!-- TELA 1: LOGIN -->
+  <div class="card screen" id="screen-login">
+    <div class="card-title">Identificação</div>
+    <div class="card-desc">Digite seu código de assessor para acessar a pesquisa de premiação.</div>
+    <div class="form-group">
+      <label>Código do Assessor</label>
+      <input type="text" id="input-codigo" placeholder="Ex: AL01" maxlength="8" autocomplete="off" />
+    </div>
+    <div class="error-msg" id="login-error"></div>
+    <button class="btn" id="btn-login">Entrar</button>
+  </div>
+
+  <!-- TELA 2: VOTAÇÃO -->
+  <div class="card screen hidden" id="screen-vote">
+    <div class="assessor-badge">
+      <div class="icon">🏅</div>
+      <div class="info">
+        <div class="name" id="badge-nome">—</div>
+        <div class="squad" id="badge-squad">—</div>
+      </div>
+    </div>
+
+    <div class="card-title">Quem merece ser premiado?</div>
+    <div class="card-desc">Selecione o colega que mais se destacou neste período. Sua resposta é confidencial.</div>
+
+    <div class="vote-options" id="vote-options">
+      <!-- opções geradas dinamicamente -->
+    </div>
+
+    <div class="outros-input" id="outros-wrap">
+      <label>Especifique</label>
+      <input type="text" id="input-outros" placeholder="Nome do colega..." />
+    </div>
+
+    <div class="error-msg" id="vote-error"></div>
+    <button class="btn" id="btn-votar">Enviar Voto</button>
+  </div>
+</div>
+
+<!-- MODAL SUCESSO -->
+<div class="modal-overlay" id="modal-sucesso">
+  <div class="modal-box">
+    <div class="modal-icon">🏆</div>
+    <div class="modal-title">Voto Registrado!</div>
+    <div class="divider"></div>
+    <div class="modal-text">Obrigado pela sua participação.<br>Seu voto foi gravado com sucesso.</div>
+  </div>
+</div>
+
+<script>
+  // =========================================
+  // BASE DE ASSESSORES
+  // =========================================
+  const assessores = [
+    { codigo: 'AL01', nome: 'Assessor Alavancados 1', squad: 'Alavancados' },
+    { codigo: 'AL02', nome: 'Assessor Alavancados 2', squad: 'Alavancados' },
+    { codigo: 'AL03', nome: 'Assessor Alavancados 3', squad: 'Alavancados' },
+    { codigo: 'AL04', nome: 'Assessor Alavancados 4', squad: 'Alavancados' },
+    { codigo: 'AL05', nome: 'Assessor Alavancados 5', squad: 'Alavancados' },
+    { codigo: 'AL06', nome: 'Assessor Alavancados 6', squad: 'Alavancados' },
+    { codigo: 'LH01', nome: 'Assessor Los Hermanos 1', squad: 'Los Hermanos' },
+    { codigo: 'LH02', nome: 'Assessor Los Hermanos 2', squad: 'Los Hermanos' },
+    { codigo: 'LH03', nome: 'Assessor Los Hermanos 3', squad: 'Los Hermanos' },
+    { codigo: 'LH04', nome: 'Assessor Los Hermanos 4', squad: 'Los Hermanos' },
+    { codigo: 'LH05', nome: 'Assessor Los Hermanos 5', squad: 'Los Hermanos' },
+    { codigo: 'LH06', nome: 'Assessor Los Hermanos 6', squad: 'Los Hermanos' },
+    { codigo: 'LH07', nome: 'Assessor Los Hermanos 7', squad: 'Los Hermanos' },
+    { codigo: 'AD01', nome: 'Assessor Advisors 1', squad: 'Advisors' },
+    { codigo: 'AD02', nome: 'Assessor Advisors 2', squad: 'Advisors' },
+    { codigo: 'AD03', nome: 'Assessor Advisors 3', squad: 'Advisors' },
+    { codigo: 'AD04', nome: 'Assessor Advisors 4', squad: 'Advisors' },
+    { codigo: 'AD05', nome: 'Assessor Advisors 5', squad: 'Advisors' },
+    { codigo: 'AD06', nome: 'Assessor Advisors 6', squad: 'Advisors' },
+    { codigo: 'OL01', nome: 'Assessor Outliers 1', squad: 'Outliers' },
+    { codigo: 'OL02', nome: 'Assessor Outliers 2', squad: 'Outliers' },
+    { codigo: 'OL03', nome: 'Assessor Outliers 3', squad: 'Outliers' },
+    { codigo: 'OL04', nome: 'Assessor Outliers 4', squad: 'Outliers' },
+    { codigo: 'OL05', nome: 'Assessor Outliers 5', squad: 'Outliers' },
+    { codigo: 'AW01', nome: 'Assessor Anywhere 1', squad: 'Anywhere' },
+    { codigo: 'AW02', nome: 'Assessor Anywhere 2', squad: 'Anywhere' },
+    { codigo: 'AW03', nome: 'Assessor Anywhere 3', squad: 'Anywhere' },
+    { codigo: 'AW04', nome: 'Assessor Anywhere 4', squad: 'Anywhere' },
+    { codigo: 'OP01', nome: 'Área Operacional 1', squad: 'Áreas Operacionais' },
+    { codigo: 'OP02', nome: 'Área Operacional 2', squad: 'Áreas Operacionais' },
+    { codigo: 'OP03', nome: 'Área Operacional 3', squad: 'Áreas Operacionais' },
+  ];
+
+  // Opções de voto (5 fixas + Outros)
+  const opcoes = [
+    'Melhor performance comercial',
+    'Maior evolução do período',
+    'Melhor trabalho em equipe',
+    'Destaque em atendimento ao cliente',
+    'Liderança e inspiração',
+    'Outros'
+  ];
+
+  let assessorLogado = null;
+  let votoSelecionado = null;
+
+  // =========================================
+  // UTILS
+  // =========================================
+  function $(id) { return document.getElementById(id); }
+
+  function showScreen(id) {
+    ['screen-login','screen-vote'].forEach(s => {
+      $(s).classList.toggle('hidden', s !== id);
+    });
+  }
+
+  // =========================================
+  // GERAR OPÇÕES DE VOTO
+  // =========================================
+  function renderOpcoes() {
+    const wrap = $('vote-options');
+    wrap.innerHTML = '';
+    opcoes.forEach(op => {
+      const div = document.createElement('div');
+      div.className = 'vote-option';
+      div.dataset.valor = op;
+      div.innerHTML = `<div class="radio"></div><span class="option-text">${op}</span>`;
+      div.addEventListener('click', () => selecionarOpcao(op, div));
+      wrap.appendChild(div);
+    });
+  }
+
+  function selecionarOpcao(valor, el) {
+    document.querySelectorAll('.vote-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    votoSelecionado = valor;
+    $('vote-error').textContent = '';
+    const outrosWrap = $('outros-wrap');
+    if (valor === 'Outros') {
+      outrosWrap.style.display = 'block';
+      $('input-outros').focus();
+    } else {
+      outrosWrap.style.display = 'none';
+      $('input-outros').value = '';
+    }
+  }
+
+  // =========================================
+  // LOGIN
+  // =========================================
+  $('btn-login').addEventListener('click', () => {
+    const codigo = $('input-codigo').value.trim().toUpperCase();
+    const assessor = assessores.find(a => a.codigo === codigo);
+    if (!assessor) {
+      $('login-error').textContent = 'Código não encontrado. Verifique e tente novamente.';
+      $('input-codigo').focus();
+      return;
+    }
+    assessorLogado = assessor;
+    $('login-error').textContent = '';
+    $('badge-nome').textContent = assessor.nome;
+    $('badge-squad').textContent = assessor.squad;
+    renderOpcoes();
+    showScreen('screen-vote');
+  });
+
+  $('input-codigo').addEventListener('keydown', e => {
+    if (e.key === 'Enter') $('btn-login').click();
+  });
+
+  // =========================================
+  // ENVIAR VOTO
+  // =========================================
+  $('btn-votar').addEventListener('click', async () => {
+    if (!votoSelecionado) {
+      $('vote-error').textContent = 'Por favor, selecione uma opção antes de votar.';
+      return;
+    }
+
+    let votoFinal = votoSelecionado;
+    if (votoSelecionado === 'Outros') {
+      const outro = $('input-outros').value.trim();
+      if (!outro) {
+        $('vote-error').textContent = 'Por favor, especifique o nome no campo acima.';
+        return;
+      }
+      votoFinal = 'Outros: ' + outro;
+    }
+
+    const btn = $('btn-votar');
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+    $('vote-error').textContent = '';
+
+    try {
+      const resp = await fetch('/api/votar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          codigo: assessorLogado.codigo,
+          nome: assessorLogado.nome,
+          squad: assessorLogado.squad,
+          voto: votoFinal
+        })
+      });
+
+      const data = await resp.json();
+
+      if (resp.ok) {
+        $('modal-sucesso').classList.add('show');
+      } else {
+        $('vote-error').textContent = data.error || 'Erro ao registrar voto. Tente novamente.';
+        btn.disabled = false;
+        btn.textContent = 'Enviar Voto';
+      }
+    } catch (err) {
+      $('vote-error').textContent = 'Erro de conexão. Verifique sua internet e tente novamente.';
+      btn.disabled = false;
+      btn.textContent = 'Enviar Voto';
+    }
+  });
+</script>
+</body>
+</html>
