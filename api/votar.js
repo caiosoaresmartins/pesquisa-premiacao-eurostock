@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     const response = await notion.pages.create({
       parent: { database_id: DATABASE_ID },
       properties: {
-        'Codigo': {
+        'C\u00f3digo': {
           title: [{ text: { content: codigo + ' - ' + nome } }]
         },
         'NomeSquad': {
