@@ -460,19 +460,32 @@
             ? document.getElementById('textoOutros').value
             : premioSelecionado;
 
-        console.log('=== Voto Registrado ===');
-        console.log('Código:', assessorAtual.codigo);
-        console.log('Assessor:', assessorAtual.nome);
-        console.log('Squad:', assessorAtual.squad);
-        console.log('Voto:', votoFinal);
-
+// Envia voto para o backend (Notion)
         const btn = document.getElementById('btnVotar');
         btn.disabled = true;
-        btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Voto Registrado</span>';
+        btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Enviando...</span>';
 
-        document.getElementById('modalNome').textContent = assessorAtual.nome + ' · ' + assessorAtual.squad;
-        showModal();
-    });
+        try {
+          const response = await fetch('/api/votar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              codigo: assessorAtual.codigo,
+              nome:   assessorAtual.nome,
+              squad:  assessorAtual.squad,
+              voto:   votoFinal
+            })
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || 'Erro desconhecido');
+          btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg><span>Voto Registrado</span>';
+          document.getElementById('modalNome').textContent = assessorAtual.nome + ' · ' + assessorAtual.squad;
+          showModal();
+        } catch(err) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>Enviar Voto</span>';
+          alert('Erro ao registrar voto: ' + err.message);
+        }
 
     const modal = document.getElementById('successModal');
     const card  = document.getElementById('successCard');
