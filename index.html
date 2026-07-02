@@ -150,9 +150,6 @@
       min-height: 16px;
     }
 
-    /* TELA DE VOTAÇÃO */
-    .vote-screen { display: none; }
-
     .assessor-badge {
       display: flex;
       align-items: center;
@@ -181,22 +178,15 @@
       letter-spacing: 1px; text-transform: uppercase;
     }
 
-    .vote-question {
-      font-size: 14px;
-      color: rgba(255,255,255,0.7);
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
-
     .vote-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
 
     .vote-option {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 14px 16px;
+      gap: 14px;
+      padding: 16px 16px;
       border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
+      border-radius: 12px;
       cursor: pointer;
       transition: all .2s;
       background: rgba(255,255,255,0.03);
@@ -211,6 +201,34 @@
       border-color: #d4af37;
       background: rgba(212,175,55,0.12);
     }
+
+    .vote-option .premio-icon {
+      font-size: 22px;
+      flex-shrink: 0;
+      width: 28px;
+      text-align: center;
+    }
+
+    .vote-option .option-body {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+    }
+
+    .vote-option .option-text {
+      font-size: 14px;
+      color: rgba(255,255,255,0.85);
+      font-weight: 500;
+    }
+
+    .vote-option .option-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+    }
+
+    .vote-option.selected .option-text { color: #fff; }
+    .vote-option.selected .option-sub  { color: rgba(212,175,55,0.6); }
 
     .vote-option .radio {
       width: 18px; height: 18px;
@@ -233,15 +251,14 @@
       border-radius: 50%;
     }
 
-    .vote-option .option-text {
-      font-size: 14px; color: rgba(255,255,255,0.85);
-    }
-
-    .vote-option.selected .option-text { color: #fff; font-weight: 500; }
-
     .outros-input {
       display: none;
       margin-bottom: 16px;
+    }
+
+    .outros-input input {
+      letter-spacing: 0;
+      text-align: left;
     }
 
     /* MODAL DE SUCESSO */
@@ -320,7 +337,7 @@
     <button class="btn" id="btn-login">Entrar</button>
   </div>
 
-  <!-- TELA 2: VOTAÇÃO -->
+  <!-- TELA 2: ESCOLHA DO PRÊMMIO -->
   <div class="card screen hidden" id="screen-vote">
     <div class="assessor-badge">
       <div class="icon">🏅</div>
@@ -330,20 +347,18 @@
       </div>
     </div>
 
-    <div class="card-title">Quem merece ser premiado?</div>
-    <div class="card-desc">Selecione o colega que mais se destacou neste período. Sua resposta é confidencial.</div>
+    <div class="card-title">Escolha seu prêmio</div>
+    <div class="card-desc">Selecione a opção que você prefere receber como premiação. Sua resposta é confidencial.</div>
 
-    <div class="vote-options" id="vote-options">
-      <!-- opções geradas dinamicamente -->
-    </div>
+    <div class="vote-options" id="vote-options"></div>
 
     <div class="outros-input" id="outros-wrap">
-      <label>Especifique</label>
-      <input type="text" id="input-outros" placeholder="Nome do colega..." />
+      <label>Qual seria sua sugestão?</label>
+      <input type="text" id="input-outros" placeholder="Descreva sua sugestão de prêmio..." />
     </div>
 
     <div class="error-msg" id="vote-error"></div>
-    <button class="btn" id="btn-votar">Enviar Voto</button>
+    <button class="btn" id="btn-votar">Enviar Resposta</button>
   </div>
 </div>
 
@@ -351,9 +366,9 @@
 <div class="modal-overlay" id="modal-sucesso">
   <div class="modal-box">
     <div class="modal-icon">🏆</div>
-    <div class="modal-title">Voto Registrado!</div>
+    <div class="modal-title">Resposta Registrada!</div>
     <div class="divider"></div>
-    <div class="modal-text">Obrigado pela sua participação.<br>Seu voto foi gravado com sucesso.</div>
+    <div class="modal-text">Obrigado pela sua participação.<br>Sua escolha foi gravada com sucesso.</div>
   </div>
 </div>
 
@@ -402,22 +417,17 @@
     { codigo: 'A33788', nome: 'Nicolas Got',           squad: 'Áreas Operacionais' },
   ];
 
-  // Opções de voto (5 fixas + Outros)
+  // Opções de prêmio
   const opcoes = [
-    'Melhor performance comercial',
-    'Maior evolução do período',
-    'Melhor trabalho em equipe',
-    'Destaque em atendimento ao cliente',
-    'Liderança e inspiração',
-    'Outros'
+    { valor: 'Viagem para Gramado com acompanhante', icon: '✈️', sub: 'Pacote de viagem para dois' },
+    { valor: 'Almoço ou janta com acompanhante',    icon: '🍽️', sub: 'Jantar ou almoço especial para dois' },
+    { valor: 'Brindes',                              icon: '🎁', sub: 'Kit de brindes exclusivos Eurostock' },
+    { valor: 'Outros',                               icon: '💬', sub: 'Tenho uma sugestão diferente' },
   ];
 
   let assessorLogado = null;
   let votoSelecionado = null;
 
-  // =========================================
-  // UTILS
-  // =========================================
   function $(id) { return document.getElementById(id); }
 
   function showScreen(id) {
@@ -426,18 +436,22 @@
     });
   }
 
-  // =========================================
-  // GERAR OPÇÕES DE VOTO
-  // =========================================
   function renderOpcoes() {
     const wrap = $('vote-options');
     wrap.innerHTML = '';
     opcoes.forEach(op => {
       const div = document.createElement('div');
       div.className = 'vote-option';
-      div.dataset.valor = op;
-      div.innerHTML = `<div class="radio"></div><span class="option-text">${op}</span>`;
-      div.addEventListener('click', () => selecionarOpcao(op, div));
+      div.dataset.valor = op.valor;
+      div.innerHTML = `
+        <span class="premio-icon">${op.icon}</span>
+        <div class="option-body">
+          <span class="option-text">${op.valor}</span>
+          <span class="option-sub">${op.sub}</span>
+        </div>
+        <div class="radio"></div>
+      `;
+      div.addEventListener('click', () => selecionarOpcao(op.valor, div));
       wrap.appendChild(div);
     });
   }
@@ -457,9 +471,7 @@
     }
   }
 
-  // =========================================
   // LOGIN
-  // =========================================
   $('btn-login').addEventListener('click', () => {
     const codigo = $('input-codigo').value.trim().toUpperCase();
     const assessor = assessores.find(a => a.codigo === codigo);
@@ -480,12 +492,10 @@
     if (e.key === 'Enter') $('btn-login').click();
   });
 
-  // =========================================
-  // ENVIAR VOTO
-  // =========================================
+  // ENVIAR
   $('btn-votar').addEventListener('click', async () => {
     if (!votoSelecionado) {
-      $('vote-error').textContent = 'Por favor, selecione uma opção antes de votar.';
+      $('vote-error').textContent = 'Por favor, selecione uma opção antes de enviar.';
       return;
     }
 
@@ -493,7 +503,7 @@
     if (votoSelecionado === 'Outros') {
       const outro = $('input-outros').value.trim();
       if (!outro) {
-        $('vote-error').textContent = 'Por favor, especifique o nome no campo acima.';
+        $('vote-error').textContent = 'Por favor, descreva sua sugestão no campo acima.';
         return;
       }
       votoFinal = 'Outros: ' + outro;
@@ -521,14 +531,14 @@
       if (resp.ok) {
         $('modal-sucesso').classList.add('show');
       } else {
-        $('vote-error').textContent = data.error || 'Erro ao registrar voto. Tente novamente.';
+        $('vote-error').textContent = data.error || 'Erro ao registrar. Tente novamente.';
         btn.disabled = false;
-        btn.textContent = 'Enviar Voto';
+        btn.textContent = 'Enviar Resposta';
       }
     } catch (err) {
       $('vote-error').textContent = 'Erro de conexão. Verifique sua internet e tente novamente.';
       btn.disabled = false;
-      btn.textContent = 'Enviar Voto';
+      btn.textContent = 'Enviar Resposta';
     }
   });
 </script>
