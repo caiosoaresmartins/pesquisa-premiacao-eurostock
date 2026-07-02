@@ -14,32 +14,22 @@ module.exports = async function handler(req, res) {
   const { codigo, nome, squad, voto } = req.body || {};
 
   if (!codigo || !nome || !squad || !voto) {
-    return res.status(400).json({ error: 'Dados incompletos', received: { codigo, nome, squad, voto } });
+    return res.status(400).json({ error: 'Dados incompletos' });
   }
 
-  if (!process.env.NOTION_TOKEN) {
-    return res.status(500).json({ error: 'NOTION_TOKEN nao configurado' });
-  }
-
-  if (!process.env.NOTION_DATABASE_ID) {
-    return res.status(500).json({ error: 'NOTION_DATABASE_ID nao configurado' });
+  if (!process.env.NOTION_TOKEN || !process.env.NOTION_DATABASE_ID) {
+    return res.status(500).json({ error: 'Variaveis de ambiente nao configuradas' });
   }
 
   try {
     const response = await notion.pages.create({
       parent: { database_id: DATABASE_ID },
       properties: {
-        'Name': {
+        'Codigo': {
           title: [{ text: { content: codigo + ' - ' + nome } }]
         },
-        'Codigo': {
-          rich_text: [{ text: { content: String(codigo) } }]
-        },
-        'Nome': {
-          rich_text: [{ text: { content: String(nome) } }]
-        },
-        'Squad': {
-          rich_text: [{ text: { content: String(squad) } }]
+        'NomeSquad': {
+          rich_text: [{ text: { content: nome + ' | ' + squad } }]
         },
         'Voto': {
           rich_text: [{ text: { content: String(voto) } }]
@@ -53,12 +43,10 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ success: true, id: response.id });
   } catch (err) {
     const detail = err && err.body ? JSON.parse(err.body) : (err && err.message);
-    console.error('Notion error:', detail);
+    console.error('Notion error:', JSON.stringify(detail));
     return res.status(500).json({
       error: 'Erro ao gravar no Notion',
       detail: detail,
-      token_ok: !!process.env.NOTION_TOKEN,
-      db_ok: !!process.env.NOTION_DATABASE_ID,
     });
   }
 };
