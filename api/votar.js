@@ -1,9 +1,9 @@
-import { Client } from '@notionhq/client';
+const { Client } = require('@notionhq/client');
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const DATABASE_ID = process.env.NOTION_DATABASE_ID;
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
       parent: { database_id: DATABASE_ID },
       properties: {
         'Name': {
-          title: [{ text: { content: `${codigo} - ${nome}` } }]
+          title: [{ text: { content: codigo + ' - ' + nome } }]
         },
         'Codigo': {
           rich_text: [{ text: { content: String(codigo) } }]
@@ -52,13 +52,13 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ success: true, id: response.id });
   } catch (err) {
-    const detail = err?.body ? JSON.parse(err.body) : err?.message;
+    const detail = err && err.body ? JSON.parse(err.body) : (err && err.message);
     console.error('Notion error:', detail);
     return res.status(500).json({
       error: 'Erro ao gravar no Notion',
-      detail,
+      detail: detail,
       token_ok: !!process.env.NOTION_TOKEN,
       db_ok: !!process.env.NOTION_DATABASE_ID,
     });
   }
-}
+};
